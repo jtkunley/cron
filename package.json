@@ -38,12 +38,12 @@
     "engines": {
         "node": ">=22"
     },
-    "main": "./src/cron.js",
-    "types": "./src/cron.d.ts",
+    "main": "./src/index.js",
+    "types": "./src/index.d.ts",
     "exports": {
         ".": {
-            "types": "./src/cron.d.ts",
-            "default": "./src/cron.js"
+            "types": "./src/index.d.ts",
+            "default": "./src/index.js"
         },
         "./package.json": "./package.json"
     },

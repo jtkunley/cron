@@ -153,7 +153,10 @@ npm run build           # compile the publishable package into dist/
 
 ```
 src/
-  cron.ts                  createCron, the package's only module
+  index.ts                 the package entry point: createCron and its types
+  cron.ts                  createCron
+  types.ts                 CronOptions, CronController and CronLogger
+  to-error.ts              wraps non-Error failures for the logger
   __tests__/               unit tests, against a mocked node-cron
 test/component/            behaviour tests against the built package and the real node-cron
 ```

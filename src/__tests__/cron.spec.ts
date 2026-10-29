@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCron, type CronOptions } from '../cron';
+import { createCron } from '../cron';
+import type { CronOptions } from '../types';
 
 const cronMocks = vi.hoisted(() => {
     let tick: (() => void) | undefined;

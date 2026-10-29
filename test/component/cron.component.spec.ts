@@ -1,9 +1,9 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { CronController, CronOptions } from '../../src/cron';
+import type { CronController, CronOptions } from '../../src';
 import { consumerRequire } from './installed';
 
-const { createCron } = consumerRequire('@jtkunley/cron') as typeof import('../../src/cron');
+const { createCron } = consumerRequire('@jtkunley/cron') as typeof import('../../src');
 
 const EVERY_SECOND = '* * * * * *';
 const TICK_TIMEOUT = { timeout: 3_000 };
