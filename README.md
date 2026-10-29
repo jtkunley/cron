@@ -135,6 +135,8 @@ Returns a `CronController`.
 | `isStarted()` | Whether the job is started. |
 | `isActive()` | Whether a run is in progress. |
 
+Without `allowOverlap`, a run still in progress after `stop()` (with `waitForCompletionOnStop: false`) keeps blocking ticks after a restart, until it finishes.
+
 ### `CronLogger`
 
 `info(message, data)`, `warn(message, data)` and `error(message, error, data)`, where `data` is a plain object such as `{ name }`.

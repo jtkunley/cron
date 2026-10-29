@@ -317,6 +317,28 @@ describe('createCron', () => {
             release();
             await vi.waitFor(() => expect(job.isActive()).toBe(false));
         });
+
+        it('after a restart, skips ticks while a run from before the stop is still in progress', async () => {
+            const logger = makeLogger();
+            const { run, release } = gatedRun();
+            const job = create({ name: 'restart', run, logger, waitForCompletionOnStop: false });
+            job.start();
+            cronMocks.tick();
+            await job.stop();
+
+            job.start();
+            cronMocks.tick();
+
+            expect(run).toHaveBeenCalledOnce();
+            expect(logger.warn).toHaveBeenCalledWith(
+                'Cron "restart" skipped: previous run still in progress',
+                { name: 'restart' },
+            );
+            release();
+            await vi.waitFor(() => expect(job.isActive()).toBe(false));
+            cronMocks.tick();
+            expect(run).toHaveBeenCalledTimes(2);
+        });
     });
 
     describe('in a context', () => {
