@@ -54,7 +54,7 @@ job.start();
 await job.stop();
 ```
 
-The `node-cron` task is created stopped and named after the job; nothing is scheduled until `start()`.
+The `node-cron` task is created stopped and named after the job; nothing is scheduled until `start()`. An invalid `schedule` makes `createCron` throw, so a bad expression from config fails at startup rather than never running.
 
 ### Logger, overlap and error hook
 

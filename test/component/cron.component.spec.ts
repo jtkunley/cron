@@ -36,6 +36,12 @@ describe('a cron job on the real node-cron', () => {
         await Promise.all(jobs.splice(0).map((job) => job.stop()));
     });
 
+    it('refuses a schedule node-cron cannot parse', () => {
+        expect(() =>
+            createCron({ name: 'bad', schedule: 'every day', run: () => Promise.resolve() }),
+        ).toThrow();
+    });
+
     it('runs on its schedule', async () => {
         const run = vi.fn(() => Promise.resolve());
 

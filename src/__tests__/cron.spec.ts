@@ -49,6 +49,15 @@ describe('createCron', () => {
             expect(job.isStarted()).toBe(false);
         });
 
+        it('throws when node-cron rejects the schedule', () => {
+            const invalid = new Error('expected 5 or 6 fields but got 1');
+            cronMocks.createTask.mockImplementationOnce(() => {
+                throw invalid;
+            });
+
+            expect(() => create({ schedule: 'nope' })).toThrow(invalid);
+        });
+
         it('start starts the task once, however often it is called, and logs it', () => {
             const logger = makeLogger();
             const job = create({ name: 'my-job', schedule: '0 * * * *', logger });
