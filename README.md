@@ -89,20 +89,21 @@ createCron({
 });
 ```
 
-With a [`@jtkunley/service-runtime`](https://github.com/jtkunley/service-runtime) request context, a tick gets the same values a request would, worked out by the context's own `value` functions:
+With a [`@jtkunley/service-runtime`](https://github.com/jtkunley/service-runtime) service, a tick gets the same values a request would, worked out by the context's own `value` functions:
 
 ```ts
-runInContext: (tick) => context.run({ headers: { 'x-tenant-id': process.env.TENANT_ID } }, tick),
+runInContext: (tick) => service.context.run({ headers: { 'x-tenant-id': process.env.TENANT_ID } }, tick),
 ```
 
 A `runInContext` that throws, such as a context missing a required value, fails the tick without calling `run()`. It is logged and reported to `onError` like a failed run, and later ticks still run.
 
 ### Stopping with graceful shutdown
 
-Stop the job in a shutdown cleanup, before the resources its runs use:
+Stop the job in a shutdown cleanup, registered before the resources its runs use. With a `@jtkunley/service-runtime` service, cleanups run in the order registered:
 
 ```ts
-setupGracefulShutdown(server, rootLogger, [() => job.stop(), closeDatabase]);
+service.onShutdown(() => job.stop());
+service.onShutdown(closeDatabase);
 ```
 
 ## API
