@@ -99,11 +99,14 @@ A `runInContext` that throws, such as a context missing a required value, fails 
 
 ### Stopping with graceful shutdown
 
-Stop the job in a shutdown cleanup, registered before the resources its runs use. With a `@jtkunley/service-runtime` service, cleanups run in the order registered:
+Stop the job in a shutdown cleanup, listed before the resources its runs use. A `@jtkunley/service-runtime` service runs its cleanups in order:
 
 ```ts
-service.onShutdown(() => job.stop());
-service.onShutdown(closeDatabase);
+configureService({
+  logger: rootLogger,
+  port: 3000,
+  cleanups: [() => job.stop(), closeDatabase],
+});
 ```
 
 ## API
