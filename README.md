@@ -163,7 +163,7 @@ test/component/            component tests against the built package and the rea
 `main`, `types` and `exports` in package.json point at built output. `npm run build` compiles it into `dist/src/` and copies `package.json`, this README, the changelog and the license into `dist/`, which is the directory to publish:
 
 ```bash
-npm run build && npm publish dist
+npm run build && npm publish ./dist
 ```
 
 Publishing from the repository root is refused, since it would ship the TypeScript sources.
