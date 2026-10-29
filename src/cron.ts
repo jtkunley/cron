@@ -2,6 +2,10 @@ import { createTask } from 'node-cron';
 import { toError } from './to-error';
 import type { CronController, CronOptions } from './types';
 
+/**
+ * Creates a scheduled job on a `node-cron` task, which stays stopped until
+ * `start()`. Throws if `schedule` is not a valid cron expression.
+ */
 export function createCron(options: CronOptions): CronController {
     const {
         name,
