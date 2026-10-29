@@ -1,6 +1,6 @@
 {
     "name": "@jtkunley/cron",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Scheduled jobs for Node.js services that skip overlapping runs, report failures without stopping the schedule, run each tick in its own context, and stop cleanly.",
     "keywords": [
         "cron",
