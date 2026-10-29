@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+
+- **Restarting:** a `start()` made before `stop()` resolves now takes effect, instead of being ignored and leaving the job stopped.
+
 ## 1.0.0 (2026-10-28)
 
 ### Features

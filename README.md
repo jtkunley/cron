@@ -131,7 +131,7 @@ Returns a `CronController`.
 | Method | Description |
 |--------|-------------|
 | `start()` | Starts scheduling. Calling it again while started does nothing. |
-| `stop()` | Stops scheduling, then, by default, waits for runs in progress. Does nothing when not started. |
+| `stop()` | Stops scheduling, then, by default, waits for runs in progress. Does nothing when not started. Scheduling stops at once, so a `start()` made before `stop()` resolves takes effect. |
 | `isStarted()` | Whether the job is started. |
 | `isActive()` | Whether a run is in progress. |
 

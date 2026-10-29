@@ -19,7 +19,6 @@ export function createCron(options: CronOptions): CronController {
     } = options;
 
     let started = false;
-    let stopRequested = false;
     let singleRunInProgress = false;
     const pendingRuns = new Set<Promise<void>>();
 
@@ -48,8 +47,15 @@ export function createCron(options: CronOptions): CronController {
         }
     }
 
+    function track(runPromise: Promise<void>): void {
+        pendingRuns.add(runPromise);
+        void runPromise.finally(() => {
+            pendingRuns.delete(runPromise);
+        });
+    }
+
     async function executeTick(): Promise<void> {
-        if (stopRequested) {
+        if (!started) {
             return;
         }
         if (!allowOverlap && singleRunInProgress) {
@@ -75,14 +81,8 @@ export function createCron(options: CronOptions): CronController {
             }
         })();
 
-        pendingRuns.add(runPromise);
-        void runPromise.finally(() => {
-            pendingRuns.delete(runPromise);
-        });
-
-        if (!allowOverlap) {
-            await runPromise;
-        }
+        track(runPromise);
+        await runPromise;
     }
 
     return {
@@ -90,9 +90,8 @@ export function createCron(options: CronOptions): CronController {
             if (started) {
                 return;
             }
-            stopRequested = false;
-            void task.start();
             started = true;
+            void task.start();
             logger?.info(`Cron "${name}" started`, { name, schedule });
         },
 
@@ -100,10 +99,10 @@ export function createCron(options: CronOptions): CronController {
             if (!started) {
                 return;
             }
-            stopRequested = true;
-            await task.stop();
             started = false;
+            const taskStopped = task.stop();
             logger?.info(`Cron "${name}" stopped`, { name });
+            await taskStopped;
 
             if (waitForCompletionOnStop && pendingRuns.size > 0) {
                 await Promise.allSettled(pendingRuns);

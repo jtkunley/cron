@@ -47,7 +47,8 @@ export interface CronController {
     start(): void;
     /**
      * Stops scheduling, then, unless `waitForCompletionOnStop` is false, waits
-     * for runs in progress. Does nothing when not started.
+     * for runs in progress. Does nothing when not started. Scheduling stops
+     * synchronously, so a `start()` made before this resolves takes effect.
      */
     stop(): Promise<void>;
     /** Whether the job is scheduling ticks. */

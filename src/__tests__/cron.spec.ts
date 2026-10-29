@@ -243,6 +243,25 @@ describe('createCron', () => {
             expect(cronMocks.task.start).toHaveBeenCalledTimes(2);
         });
 
+        it('lets a start() made before stop() resolves take effect', async () => {
+            const run = vi.fn().mockResolvedValue(undefined);
+            const job = create({ run });
+            job.start();
+
+            const stopping = job.stop();
+            job.start();
+            await stopping;
+            cronMocks.tick();
+
+            expect(job.isStarted()).toBe(true);
+            expect(cronMocks.task.stop).toHaveBeenCalledOnce();
+            expect(cronMocks.task.start).toHaveBeenCalledTimes(2);
+            expect(cronMocks.task.start.mock.invocationCallOrder[1]).toBeGreaterThan(
+                cronMocks.task.stop.mock.invocationCallOrder[0]!,
+            );
+            expect(run).toHaveBeenCalledOnce();
+        });
+
         it('by default waits for the run in progress to finish', async () => {
             const { run, release } = gatedRun();
             const job = create({ run });
