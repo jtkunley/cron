@@ -25,7 +25,7 @@ Scheduled jobs for Node.js services, on top of [`node-cron`](https://www.npmjs.c
 - **Stopping finishes the work.** `stop()` stops scheduling first, then waits for runs in progress, so it can sit in a shutdown sequence before the database closes.
 - **Context without coupling.** `runInContext` wraps each tick in whatever context the service uses, an `AsyncLocalStorage` or a request-context library, without this package knowing about it. The failure log is written inside that context, so a logger that injects context values sees the tick's.
 - **Logs only what the logger can't know.** Lines carry the job's name, and its schedule when it starts. Request IDs and the like come from the logger's own context injection.
-- **Tested the way it runs.** Unit tests hold coverage at 100%, enforced in CI. Component tests build the package as published, install it beside the real `node-cron`, and drive real schedules.
+- **Tested the way it runs.** Unit tests hold coverage at 100%, enforced in CI. Component tests build the package as published, install it beside the real `node-cron`, and check its behaviour on real schedules.
 
 ## Install
 
@@ -155,7 +155,7 @@ npm run build           # compile the publishable package into dist/
 src/
   cron.ts                  createCron, the package's only module
   __tests__/               unit tests, against a mocked node-cron
-test/component/            component tests against the built package and the real node-cron
+test/component/            behaviour tests against the built package and the real node-cron
 ```
 
 ### Publishing
