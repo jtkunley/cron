@@ -1,7 +1,10 @@
 # @jtkunley/cron
 
+[![npm](https://img.shields.io/npm/v/@jtkunley/cron)](https://www.npmjs.com/package/@jtkunley/cron)
 [![CI](https://github.com/jtkunley/cron/actions/workflows/ci.yml/badge.svg)](https://github.com/jtkunley/cron/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](package.json)
+[![TypeScript](https://img.shields.io/badge/types-TypeScript-3178C6?logo=typescript&logoColor=white)](src/index.ts)
+[![Dependencies](https://img.shields.io/badge/dependencies-1-brightgreen)](package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Scheduled jobs for Node.js services, on [`node-cron`](https://www.npmjs.com/package/node-cron), with the parts every service ends up writing around it:
