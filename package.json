@@ -1,15 +1,20 @@
 {
     "name": "@jtkunley/cron",
     "version": "1.0.2",
-    "description": "Scheduled jobs for Node.js services that skip overlapping runs, run each tick in its own context, and stop cleanly.",
+    "description": "Scheduled jobs for Node.js services on node-cron: no overlapping runs, a context per run, failures reported without stopping the job, and a stop that waits for runs in progress. One runtime dependency.",
     "keywords": [
         "cron",
         "node-cron",
+        "cron-jobs",
         "scheduler",
-        "jobs",
-        "asynclocalstorage",
+        "job-scheduler",
+        "scheduled-tasks",
         "graceful-shutdown",
-        "node"
+        "asynclocalstorage",
+        "context-propagation",
+        "error-handling",
+        "nodejs",
+        "typescript"
     ],
     "homepage": "https://github.com/jtkunley/cron#readme",
     "bugs": {
