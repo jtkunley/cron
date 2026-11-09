@@ -1,0 +1,45 @@
+- Use `node-cron` as the only direct third-party runtime dependency. Accept logging and execution context through caller-supplied interfaces without requiring additional packages.
+- Expose `createCron(options)` with required `name: string`, `schedule: string`, and `run: () => Promise<void>`.
+- Accept optional `logger`, `onError: (error: unknown) => void`, `allowOverlap: boolean`, `waitForCompletionOnStop: boolean`, and `runInContext: (tick: () => Promise<void>) => Promise<void>`.
+- Return a controller exposing `start(): void`, `stop(): Promise<void>`, `isStarted(): boolean`, and `isActive(): boolean`.
+- Fix job configuration at creation. Changing properties on the original options object must not reconfigure the job; runtime schedule changes are outside the public contract.
+- Accept cron syntax supported by `node-cron`, including five-field expressions and six-field expressions with leading seconds. Reject invalid schedules synchronously during creation.
+- Interpret schedules in the process’s default timezone, following `node-cron` calendar and daylight-saving behavior. Do not expose a separate timezone option.
+- Follow `node-cron`’s default handling of delayed scheduler ticks. Add no backlog replay, and do not recover executions missed while stopped or while the process was not running.
+- Create each job stopped and inactive. Creation must not invoke the work. Keep scheduling, activity, and overlap state independent between jobs.
+- `start()` enables future scheduled executions without directly invoking the work. Repeated calls while started have no additional effect or duplicate start log.
+- Invoke `run()` without arguments on each eligible tick. Scheduled execution is subject to process availability and event-loop delays; exact millisecond delivery is not guaranteed.
+- `isStarted()` reports whether scheduling is enabled. `isActive()` reports whether at least one execution remains unfinished. These states are independent.
+- Treat the complete context-wrapped execution as active, including asynchronous work before and after the supplied tick callback.
+- Default `allowOverlap` to `false`. Skip ticks while an earlier execution remains unfinished; do not queue or replay those skipped ticks.
+- After an execution finishes, accept subsequent ticks even if it failed.
+- With `allowOverlap: true`, permit each eligible tick to begin while earlier executions remain unfinished. Remain active until all executions finish.
+- `stop()` disables scheduling and changes `isStarted()` to `false` before returning its promise. Ignore subsequent ticks unless the job is restarted.
+- Default `waitForCompletionOnStop` to `true`. Resolve `stop()` only after scheduling is stopped and all executions already active when that call disabled scheduling have settled.
+- An execution failure must not, by itself, reject a stop operation waiting for it. Waiting has no built-in timeout.
+- With `waitForCompletionOnStop: false`, stop scheduling without waiting for unfinished executions. Let them continue and keep reporting their activity through `isActive()`.
+- Stopping must not cancel running work. The stop log indicates scheduling has stopped, not that all work has finished.
+- Calling `stop()` while already stopped resolves without additional action or duplicate logging. It does not join an earlier stop operation’s pending completion wait.
+- Allow a stopped job to restart. A `start()` called before an earlier `stop()` resolves must take effect; completion of that earlier stop must not disable the restarted job.
+- Executions begun after restarting must not extend an earlier stop operation’s completion wait.
+- Preserve overlap protection across restarts: with overlap disabled, unfinished work from before a stop continues to block new executions after restarting.
+- Catch synchronous throws and rejected promises from `run()`. Report the failure, release that execution’s overlap restriction when it finishes, and preserve future scheduling. Do not automatically retry failed work.
+- When provided, call `onError` with the original failure value, preserving its identity and type. Invoke it even when no logger is supplied.
+- Attempt to log an execution failure before invoking `onError`. A logger failure must not prevent the error callback from receiving the original failure.
+- Treat `onError` as synchronous and ignore its return value. Async error hooks are outside the contract.
+- If `onError` throws synchronously, report that hook failure separately without invoking `onError` recursively, producing an unhandled rejection from that exception, or disabling future executions.
+- Accept an optional logger with `info(message: string, data: Record<string, unknown>): void`, `warn(message: string, data: Record<string, unknown>): void`, and `error(message: string, error: Error, data: Record<string, unknown>): void`.
+- Without a supplied logger, make no package-level logging calls. Diagnostic output originating from `node-cron` is governed by that dependency.
+- Exceptions thrown by supplied logger methods must not escape lifecycle calls, prevent work or error callbacks from running, corrupt activity state, or disable future scheduling.
+- On each transition to started, log at information level: `Cron "<name>" started`, with `{ name, schedule }`.
+- On each transition to stopped, log at information level: `Cron "<name>" stopped`, with `{ name }`.
+- For every tick skipped because an earlier execution remains unfinished, log a warning: `Cron "<name>" skipped: previous run still in progress`, with `{ name }`.
+- For a work or context-wrapper failure, log an error: `Cron "<name>" run failed`, with an `Error` representing the failure and metadata `{ name }`.
+- For a synchronous error-hook failure, log an error: `Cron "<name>" onError hook failed`, with an `Error` representing that hook failure and metadata `{ name }`.
+- Preserve an existing `Error` object unchanged when passing it to the logger. Represent another failure value as an `Error` with message `String(value)` and the original value as `cause`. If string conversion itself throws, reporting must still preserve the original failure for `onError` and must not disrupt future scheduling.
+- Invoke `runInContext` separately for each accepted execution, passing a zero-argument asynchronous tick callback. Without a wrapper, execute the work normally.
+- The caller’s context wrapper must invoke the tick callback exactly once and return a promise covering its completion and any wrapper work. If establishing context fails, it may throw or reject without invoking the tick. Other wrapper behavior is outside the contract.
+- Let the wrapper establish distinct context for successive executions. Work, its failure log, and its `onError` callback must observe the context surrounding that tick.
+- Do not invoke the context wrapper for stopped or overlap-skipped ticks.
+- Report synchronous throws and rejected promises from the context wrapper through the ordinary execution-failure path. If it fails before invoking the tick callback, do not run the work.
+- If the wrapper fails after invoking the work, report the wrapper failure without rerunning the work. Wrapper failure must not leave the job permanently active or block future eligible ticks.

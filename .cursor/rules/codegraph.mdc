@@ -1,0 +1,8 @@
+---
+description: CodeGraph is enabled for this repo (index in .codegraph/, MCP entry in .cursor/mcp.json). Use its tools for symbol search and impact analysis.
+alwaysApply: false
+---
+
+# CodeGraph
+
+Enabled. The index auto-syncs after `codegraph init`; do not re-init every session.
